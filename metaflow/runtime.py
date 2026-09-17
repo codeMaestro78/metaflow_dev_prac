@@ -1494,14 +1494,17 @@ class NativeRuntime(object):
                         task = worker.task
                         if returncode:
                             # worker did not finish successfully
-                            if (
-                                worker.cleaned
-                                or returncode == METAFLOW_EXIT_DISALLOW_RETRY
-                            ):
+                            if worker.cleaned:
                                 self._logger(
                                     "This failed task will not be retried.",
                                     system_msg=True,
                                 )
+                            elif returncode == METAFLOW_EXIT_DISALLOW_RETRY:
+                                self._logger(
+                                    "This failed task will not be retried.",
+                                    system_msg=True,
+                                )
+                                raise TaskFailed(task)
                             else:
                                 if (
                                     task.retries
